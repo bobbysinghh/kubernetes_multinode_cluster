@@ -1,0 +1,23 @@
+---
+# tasks file for roles/ec2_create
+
+- name: launching AWS instance using Ansible
+  ec2:
+    key_name: "{{ key_pair }}"
+    instance_type: "{{ aws_instance_type }}"
+    image: "{{ ami_id }}"
+    wait: yes
+    count: 1
+    vpc_subnet_id: "{{ subnet_id }}"
+    assign_public_ip: yes
+    region: "{{ aws_region }}"
+    state: present
+    group_id: "{{  security_group_id  }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    instance_tags:
+      Name: "{{ item }}"
+  loop: "{{ os_names }}"
+
+
+

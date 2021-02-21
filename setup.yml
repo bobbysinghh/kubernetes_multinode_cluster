@@ -1,0 +1,26 @@
+- hosts: localhost
+  vars_files:
+          - ./secure.yml
+  roles:
+     - role: ec2_create
+  tasks:
+          - command: "sleep 90"
+- hosts: "tag_Name_Kubernetes_master"
+  vars_files:
+          - ./secure.yml
+  roles:
+    - role: kubernetes_master
+
+- hosts: ["tag_Name_Kubernetes_Salve_1", "tag_Name_Kubernetes_Salve_2"]
+  vars_files:
+          - ./secure.yml
+  vars_prompt:
+      - name: token_join 
+        prompt: "Enter your token to join master"
+        private: no
+  roles:
+    - role: kubernetes_slave
+
+
+
+

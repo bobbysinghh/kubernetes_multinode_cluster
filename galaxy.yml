@@ -1,0 +1,16 @@
+namespace: "bobby8249"
+name: "Kubernetes_multinode_cluster"
+version: "1.0.12"
+readme: "README.md"
+authors:
+    - "BobbySingh  (https://author2.example.com)"
+dependencies:
+
+    "bobby8249.kubernetes_multinode_cluster": "*"    # note: "*" selects the highest version available
+license:
+    - "MIT"
+tags:
+    - demo
+    - collection
+repository: "https://github.com/Bobby8249/kubernetes_multinode_cluster"
+

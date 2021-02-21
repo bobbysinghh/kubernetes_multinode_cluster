@@ -1,0 +1,3 @@
+---
+# defaults file for roles/ec2_create
+security_group: default

@@ -1,0 +1,13 @@
+---
+# vars file for roles/ec2_create
+
+aws_instance_type: "t2.micro"
+ami_id: ""
+subnet_id: ""
+aws_region: "ap-south-1"
+security_group_id: ""
+key_pair: ""
+os_names:
+    - "Kubernetes_master"
+    - "Kubernetes_Salve_1"
+    - "Kubernetes_Salve_2" 

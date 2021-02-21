@@ -1,0 +1,80 @@
+---
+# tasks file for kubernetes_master
+- name: Configure kubernetes repo
+  shell: |
+      cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+      enabled=1
+      gpgcheck=1
+      repo_gpgcheck=1
+      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+      exclude=kubelet kubeadm kubectl
+      EOF
+  changed_when: false
+- name: Installing package
+  yum:
+          name: "{{ packages }}"
+          state: present
+
+- name: Start and enable docker services
+  service:
+          name: docker
+          state: started
+          enabled: yes
+
+
+- name: Installing kubernetes by cmd
+  shell: "yum install -y  kubeadm  --disableexcludes=kubernetes"
+  register: kubeadm
+- debug:
+        var: kubeadm.stdout_lines
+
+- name: Change docker daemon cgroup driver
+  copy:
+          content: |
+                {
+                  "exec-opts": ["native.cgroupdriver=systemd"]
+                }
+          dest: /etc/docker/daemon.json
+  notify: restart docker
+- name: "Restarting docker"
+  service:
+          name: "docker"
+          state: restarted
+- name: Start and enable kubectl services
+  service:
+          name: kubelet
+          state: started
+          enabled: yes
+
+- name: Pulling Required K8S Images For Master Node
+  shell: kubeadm config images pull
+
+- name: "Installing iproute-tc"
+  package: 
+     name: iproute-tc
+  ignore_errors: yes
+
+- name: "Setting bridge-nf-call-iptables to 1"
+  copy:
+    dest: /etc/sysctl.d/k8s.conf
+    content: |
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+
+- name: Restarting sysctl
+  shell: "sudo sysctl --system"
+
+- name: Clear buffer chache
+  shell: "{{ item }}"
+  with_items:
+     - echo 3 > /proc/sys/vm/drop_caches
+
+- name: "Joining Slaves to Master Node"
+  shell: "{{ token_join }}"
+  register: join
+
+- debug:
+        var: join.stout_lines
